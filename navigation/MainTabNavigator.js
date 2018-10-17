@@ -5,6 +5,7 @@ import { createStackNavigator, createBottomTabNavigator } from 'react-navigation
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import Scanner from '../screens/Scanner';
+import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const HomeStack = createStackNavigator({
@@ -25,12 +26,27 @@ HomeStack.navigationOptions = {
   ),
 };
 
+
 const LinksStack = createStackNavigator({
-  Links: Scanner,
+  Links: LinksScreen,
 });
 
 LinksStack.navigationOptions = {
   tabBarLabel: 'Links',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={Platform.OS === 'ios' ? `ios-link${focused ? '' : '-outline'}` : 'md-link'}
+    />
+  ),
+};
+
+const BarcodeStack = createStackNavigator({
+  Barcode: Scanner,
+});
+
+BarcodeStack.navigationOptions = {
+  tabBarLabel: 'Barcode',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
@@ -56,5 +72,6 @@ SettingsStack.navigationOptions = {
 export default createBottomTabNavigator({
   HomeStack,
   LinksStack,
+  BarcodeStack,
   SettingsStack,
 });
