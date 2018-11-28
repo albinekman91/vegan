@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, Text, Button, Alert } from 'react-native';
+import { View, StyleSheet, Text, Button, Alert, ActivityIndicator } from 'react-native';
 import axios from 'axios';
+
+var parseString = require('react-native-xml2js').parseString;
 
 export default class DetailsScreen extends React.Component {
 
@@ -13,20 +15,26 @@ export default class DetailsScreen extends React.Component {
     //Set product barcode from params
     this.productBarCode = params ? params.productBarCode : null;
 
-    console.log(this.productBarCode);
+    this.state = {
+      ingredients: [],
+      isLoading: true,
+    };
+
+  }
+
+  componentDidMount() {
+    this.getProductInfo();
   }
 
   render() {
+
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text>Details Screen</Text>
-        <Text>From navigation: 0{ this.productBarCode }</Text>
-        <Button
-          onPress={this._getProductInfo}
-          title={`Sök: 0${this.productBarCode}`}
-          color="#841584"
-          accessibilityLabel="Learn more about this purple button"
-        />
+        { this.state.isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : ''}
+        { this.state.ingredients.map((item, index) => {
+          return <Text key={index}>{ item }</Text>
+        })}
         <Button
           title="Go back"
           onPress={() => this.props.navigation.goBack()}
@@ -35,21 +43,23 @@ export default class DetailsScreen extends React.Component {
     );
   }
 
-  _getProductInfo = () => {
-    // var parseString = require('react-native-xml2js').parseString;
-    axios.get(`http://api.dabas.com/DABASService/V2/article/gtin/0${this.productBarCode }/XML?apikey=2e1ad76a-4627-46ae-97d1-0d300b4820d5`)
-    .then(function (response) {
-      var parseString = require('react-native-xml2js').parseString;
+  getProductInfo() {
+    axios.get(`http://api.dabas.com/DABASService/V2/article/gtin/0${this.productBarCode}/XML?apikey=2e1ad76a-4627-46ae-97d1-0d300b4820d5`)
+    .then(response => {
       var xml = response.data;
-      parseString(xml, function (err, result) {
-          console.log(result['Artikel']['Ingrediensforteckning']);
-          var ingredients = JSON.stringify(result['Artikel']['Ingrediensforteckning']);
+      let ingredients = parseString(xml, (err, result) => {
+          var ingredients = result['Artikel']['Ingrediensforteckning'][0].split(', ');
+          console.log(ingredients);
           if(ingredients) {
-            Alert.alert(ingredients);
+            this.setState({
+              ingredients: ingredients,
+              isLoading: false
+            })
           } else {
             Alert.alert("The product couldn't be found");  
           }
       });
+      console.log(this.state.ingredients);
 
     })
     .catch(function (error) {

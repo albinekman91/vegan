@@ -14,6 +14,16 @@ export default class HomeScreen extends React.Component {
     hasCameraPermission: null,
   }
 
+
+  //Temporary Start
+  componentDidMount() {
+    this.props.navigation.navigate('DetailsScreen', {
+      productBarCode: "7313960031230",
+    })
+  }
+  //Temporary End
+
+
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
       this.setState({hasCameraPermission: status === 'granted'});
